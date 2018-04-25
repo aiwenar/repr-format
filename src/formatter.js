@@ -314,4 +314,122 @@ export default class Formatter {
     map(name, callback) {
         throw new Error('not implemented')
     }
+
+    /**
+     * @private
+     *
+     * @param {Class<SubFormatter>} formatter
+     * @param {?(string|object|null)} name
+     * @param {function(typeof formatter)} callback
+     */
+    _subformatter(formatter, name, callback) {
+        if (typeof name === 'function') {
+            callback = name
+            name = null
+        }
+
+        if (name && typeof name === 'object') {
+            name = Reflect.getPrototypeOf(name).constructor.name
+        }
+
+        formatter = new formatter(this, name)
+        formatter.begin()
+
+        if (this.pretty) {
+            this.depth += 1
+        }
+
+        callback(formatter)
+
+        if (this.pretty) {
+            this.depth -= 1
+        }
+
+        formatter.finish()
+    }
+}
+
+/**
+ * Base class for structural formatting helpers.
+ *
+ * This class takes care of all basic rendering and formatting, so that its
+ * subclasses can focus on just content.
+ */
+export class SubFormatter {
+    constructor(formatter, name) {
+        this.formatter = formatter
+        this.name = name
+
+        this.open = '{'
+        this.close = '}'
+
+        this.has_elements = false
+    }
+
+    /**
+     * Are we pretty-printing?
+     *
+     * @type {boolean}
+     */
+    get pretty() { return this.formatter.pretty }
+
+    /**
+     * Write some data to the underlying buffer.
+     *
+     * @see Formatter#write
+     */
+    write(...args) {
+        this.formatter.write(...args)
+    }
+
+    /**
+     * Write representation of a value to the underlying buffer.
+     *
+     * @see Formatter#format
+     */
+    format(value) {
+        this.formatter.format(value)
+    }
+
+    /**
+     * Write what should be before the main content.
+     */
+    begin() {
+        if (this.name) {
+            this.write(this.name, ' ')
+        }
+        this.write(this.open)
+    }
+
+    /**
+     * Write what should be after the main content.
+     */
+    finish() {
+        if (this.has_elements) {
+            this.write(this.pretty ? ',\n' : ' ')
+        }
+        this.write(this.close)
+    }
+
+    /**
+     * Write a single entry.
+     *
+     * THis function takes care of writing any content which should go before
+     * or after an entry as well as formatting, when {@link #pretty} is set.
+     * The actual entry content is written by callback.
+     *
+     * When using sub-formatters you should generally avoid calling
+     * {@link #format} and {@link write} outside of a callback to this function.
+     *
+     * @param {function()} cb
+     */
+    entry(cb) {
+        if (this.has_elements) {
+            this.write(this.pretty ? ',\n' : ', ')
+        } else {
+            this.write(this.pretty ? '\n' : ' ')
+        }
+        cb()
+        this.has_elements = true
+    }
 }
