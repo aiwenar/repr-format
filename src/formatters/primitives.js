@@ -1,6 +1,11 @@
 import util from '../util'
 import { represent } from '../common'
 
+export function formatDate(fmt) {
+    fmt.write('Date(', this.toISOString(), ')')
+}
+Date.prototype[represent] = formatDate
+
 export function formatSymbol(fmt) {
     const key = Symbol.keyFor(this)
 
