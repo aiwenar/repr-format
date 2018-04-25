@@ -21,3 +21,8 @@ export function formatString(fmt) {
     fmt.write('"', util.escape(this, '"'), '"')
 }
 String.prototype[represent] = formatString
+
+export function formatRegExp(fmt) {
+    fmt.write('/', this.source, '/', this.flags)
+}
+RegExp.prototype[represent] = formatRegExp
