@@ -234,7 +234,7 @@ export default class Formatter {
      * Name { foo: "bar", buz: [1, 2, 3] }
      */
     struct(name, callback) {
-        throw new Error('not implemented')
+        this._subformatter(this.constructor.Struct, name, callback)
     }
 
     /**
@@ -431,5 +431,29 @@ export class SubFormatter {
         }
         cb()
         this.has_elements = true
+    }
+}
+
+/**
+ * Formatter for structured (Object-like) data.
+ */
+Formatter.Struct = class Struct extends SubFormatter {
+    /**
+     * Write a single field.
+     *
+     * @param {string|symbol} name
+     * @param {any} value
+     */
+    field(name, value) {
+        this.entry(() => {
+            if (typeof name === 'symbol') {
+                this.format(name)
+            } else {
+                this.write(name)
+            }
+
+            this.write(': ')
+            this.format(value)
+        })
     }
 }
