@@ -454,8 +454,10 @@ Formatter.Struct = class Struct extends SubFormatter {
         super.write_item(() => {
             if (typeof name === 'symbol') {
                 this.format(name)
-            } else {
+            } else if (util.isIdentifier(name)) {
                 this.write(name)
+            } else {
+                this.format(name)
             }
 
             this.write(': ')
