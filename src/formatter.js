@@ -312,7 +312,7 @@ export default class Formatter {
      * Name { "foo" => 1, "bar" => "baz" }
      */
     map(name, callback) {
-        throw new Error('not implemented')
+        this._subformatter(this.constructor.Map, name, callback)
     }
 
     /**
@@ -504,5 +504,28 @@ Formatter.Set = class List extends SubFormatter {
      */
     entry(value) {
         super.write_item(() => this.format(value))
+    }
+}
+
+/**
+ * Formatter for maps.
+ *
+ * This is similar to {@link Formatter~Struct}, except that it uses {@code "=>"}
+ * as key-value separator, allows any object as key, not just strings and
+ * symbols, and that it formats its string keys.
+ */
+Formatter.Map = class Map extends SubFormatter {
+    /**
+     * Write a single entry in this map.
+     *
+     * @param {any} key
+     * @param {any} value
+     */
+    entry(key, value) {
+        this.write_item(() => {
+            this.format(key)
+            this.write(' => ')
+            this.format(value)
+        })
     }
 }
