@@ -414,22 +414,28 @@ export class SubFormatter {
     /**
      * Write a single entry.
      *
-     * THis function takes care of writing any content which should go before
+     * This function takes care of writing any content which should go before
      * or after an entry as well as formatting, when {@link #pretty} is set.
      * The actual entry content is written by callback.
      *
      * When using sub-formatters you should generally avoid calling
      * {@link #format} and {@link write} outside of a callback to this function.
      *
-     * @param {function()} cb
+     * @param {function()|string} cb
      */
-    entry(cb) {
+    write_item(cb) {
         if (this.has_elements) {
             this.write(this.pretty ? ',\n' : ', ')
         } else {
             this.write(this.pretty ? '\n' : ' ')
         }
-        cb()
+        if (typeof cb === 'function') {
+            cb()
+        } else if (typeof cb === 'string') {
+            this.write(cb)
+        } else {
+            throw new Error('SubFormatter#write_item accepts only functions and strings')
+        }
         this.has_elements = true
     }
 }
@@ -445,7 +451,7 @@ Formatter.Struct = class Struct extends SubFormatter {
      * @param {any} value
      */
     field(name, value) {
-        this.entry(() => {
+        super.write_item(() => {
             if (typeof name === 'symbol') {
                 this.format(name)
             } else {
