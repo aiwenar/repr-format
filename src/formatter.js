@@ -96,7 +96,37 @@ export default class Formatter {
      * @see #map
      */
     write(...data) {
-        throw new Error('not implemented')
+        for (const item of data) {
+            if (typeof item !== 'string') {
+                throw new Error('Expected a string, not ' + typeof item)
+            }
+            this._write(item)
+        }
+    }
+
+    _write(str) {
+        if (!this.pretty) {
+            this.result += str
+            return
+        }
+
+        do {
+            if (this.onNewline) {
+                this.result += this.indent.repeat(this.depth)
+            }
+
+            const inx = str.indexOf('\n')
+
+            if (inx === -1) {
+                this.result += str
+                str = false
+                this.onNewline = false
+            } else {
+                this.result += str.slice(0, inx + 1)
+                str = str.slice(inx + 1)
+                this.onNewline = true
+            }
+        } while (str)
     }
 
     /**
