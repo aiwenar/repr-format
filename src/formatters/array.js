@@ -53,3 +53,35 @@ export function formatArray(fmt) {
 }
 Array.prototype[represent] = formatArray
 Reflect.getPrototypeOf(Int8Array).prototype[represent] = formatArray
+
+const HEX = '0123456789abcdef'
+
+export function formatByteArray(fmt) {
+    const { constructor } = Reflect.getPrototypeOf(this)
+    const name = constructor === Array ? 'Uint8Array' : constructor.name
+
+    fmt.write(name, ' "')
+
+    for (const byte of this) {
+        switch (byte) {
+        case 0:  fmt.write('\\0'); continue
+        case 8:  fmt.write('\\b'); continue
+        case 9:  fmt.write('\\t'); continue
+        case 10: fmt.write('\\n'); continue
+        case 11: fmt.write('\\v'); continue
+        case 12: fmt.write('\\f'); continue
+        case 13: fmt.write('\\r'); continue
+        case 34: fmt.write('\\"'); continue
+        }
+
+        if (byte >= 0x20 && byte <= 0x7e) {
+            fmt.write(String.fromCharCode(byte))
+        } else {
+            fmt.write('\\x', HEX[Math.floor(byte / 16)], HEX[byte % 16])
+        }
+    }
+
+    fmt.write('"')
+}
+Uint8Array.prototype[represent] = formatByteArray
+
