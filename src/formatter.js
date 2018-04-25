@@ -261,7 +261,7 @@ export default class Formatter {
      * Name [1, 2, 3]
      */
     list(name, callback) {
-        throw new Error('not implemented')
+        this._subformatter(this.constructor.List, name, callback)
     }
 
     /**
@@ -461,5 +461,30 @@ Formatter.Struct = class Struct extends SubFormatter {
             this.write(': ')
             this.format(value)
         })
+    }
+}
+
+/**
+ * Formatter for sequences.
+ *
+ * This class extends {@link Formatter~Struct} because arrays in JavaScript can
+ * actually contain non-numeric properties, and thus we need {@link #field}
+ * to format them.
+ */
+Formatter.List = class List extends Formatter.Struct {
+    constructor(...args) {
+        super(...args)
+
+        this.open = '['
+        this.close = ']'
+    }
+
+    /**
+     * Write a single entry in this sequence.
+     *
+     * @param {any} value
+     */
+    entry(value) {
+        super.write_item(() => this.format(value))
     }
 }
