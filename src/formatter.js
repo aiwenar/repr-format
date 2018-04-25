@@ -76,6 +76,71 @@ export default class Formatter {
      * @param {any} value
      */
     format(value) {
+        // Special case null, since typeof null === 'object'
+        if (value === null) {
+            return this.write('null')
+        }
+
+        // First try using custom formatters, ...
+
+        let proto
+        try {
+            proto = Reflect.getPrototypeOf(value)
+        } catch(ex) {
+            proto = null
+        }
+
+        if (proto && represent in proto) {
+            return proto[represent].call(value, this)
+        }
+
+        // ... and fall back to defaults if there's none.
+
+        return this.formatDefault(value)
+    }
+
+    /**
+     * Apply default formatting to a value.
+     *
+     * This function is called for values which do not provide custom formatting
+     * (see {@link represent}). You can overwrite it to customise how such
+     * values are displayed.
+     *
+     * @protected
+     *
+     * @param {any} value
+     *
+     * @example
+     *
+     * class Custom extends Formatter {
+     *     formatDefault(value) {
+     *         if (typeof value !== 'number') return super.formatDefault(value)
+     *         this.write(value % 2 === 0
+     *             ? 'even'
+     *             : value % 2 === 1 ? 'odd' : 'not an integer')
+     *     }
+     * }
+     *
+     * new Custom().format(123).toString() // => "odd"
+     * new Custom().format(86).toString() // => "even"
+     * new Custom().format(3.14).toString() // => "not an integer"
+     */
+    formatDefault(value) {
+        switch (typeof value) {
+        case 'object':      return formatters.formatObject.call(value, this)
+        case 'function':    return formatters.formatFunction.call(value, this)
+        case 'string':      return formatters.formatString.call(value, this)
+        case 'symbol':      return formatters.formatSymbol.call(value, this)
+        case 'undefined':   return this.write('undefined')
+
+        case 'number':
+        case 'boolean':
+            return this.write(value.toString())
+
+        default:
+            return this.write('<', typeof value, ': ', value.toString(), '>')
+        }
+
         throw new Error('not implemented')
     }
 
