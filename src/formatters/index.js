@@ -1,5 +1,6 @@
 export * from './array'
 export * from './function'
+export * from './map'
 export * from './object'
 export * from './primitives'
 export * from './set'
