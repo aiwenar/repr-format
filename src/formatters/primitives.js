@@ -7,6 +7,6 @@ export function formatSymbol(fmt) {
 Symbol.prototype[represent] = formatSymbol
 
 export function formatString(fmt) {
-    // TODO: implement
+    fmt.write('"', util.escape(this, '"'), '"')
 }
 String.prototype[represent] = formatString
