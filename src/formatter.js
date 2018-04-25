@@ -287,7 +287,7 @@ export default class Formatter {
      * Name { 1, 2, 3 }
      */
     set(name, callback) {
-        throw new Error('not implemented')
+        this._subformatter(this.constructor.Set, name, callback)
     }
 
     /**
@@ -481,6 +481,24 @@ Formatter.List = class List extends Formatter.Struct {
 
     /**
      * Write a single entry in this sequence.
+     *
+     * @param {any} value
+     */
+    entry(value) {
+        super.write_item(() => this.format(value))
+    }
+}
+
+/**
+ * Formatter for sets.
+ *
+ * This differs from {@link Formatter~List} in that it uses {@code "{"} and
+ * {@code "}"} as delimiters, and only supports entries; there's no equivalent
+ * of {@link Formatter~List#field} for sets.
+ */
+Formatter.Set = class List extends SubFormatter {
+    /**
+     * Write a single entry in this set.
      *
      * @param {any} value
      */
