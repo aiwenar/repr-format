@@ -9,5 +9,9 @@
     "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-node-resolve": "^8.4.0",
     "rollup": "^2.21.0"
+  },
+  "scripts": {
+    "prepack": "rollup -c",
+    "prepare": "rollup -c"
   }
 }
