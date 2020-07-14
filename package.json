@@ -5,6 +5,9 @@
   "version": "0.1.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-node-resolve": "^8.4.0",
