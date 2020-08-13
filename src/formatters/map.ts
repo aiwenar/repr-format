@@ -1,4 +1,5 @@
 import Formatter from '../formatter'
+import util from '../util'
 import { represent } from '../common'
 
 export function formatMap(this: Map<unknown, unknown>, fmt: Formatter) {
@@ -10,10 +11,10 @@ export function formatMap(this: Map<unknown, unknown>, fmt: Formatter) {
         }
     })
 }
-Map.prototype[represent] = formatMap
+util.extend(Map, represent, formatMap)
 
 export function formatWeakMap(this: WeakMap<object, unknown>, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
     fmt.write(name)
 }
-WeakMap.prototype[represent] = formatWeakMap
+util.extend(WeakMap, represent, formatWeakMap)

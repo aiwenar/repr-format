@@ -5,7 +5,7 @@ import { represent } from '../common'
 export function formatDate(this: Date, fmt: Formatter) {
     fmt.write('Date(', this.toISOString(), ')')
 }
-Date.prototype[represent] = formatDate
+util.extend(Date, represent, formatDate)
 
 export function formatSymbol(this: symbol, fmt: Formatter) {
     const key = Symbol.keyFor(this)
@@ -16,14 +16,14 @@ export function formatSymbol(this: symbol, fmt: Formatter) {
         fmt.write(this.toString())
     }
 }
-Symbol.prototype[represent] = formatSymbol
+util.extend(Symbol, represent, formatSymbol)
 
 export function formatString(this: string, fmt: Formatter) {
     fmt.write('"', util.escape(this, '"'), '"')
 }
-String.prototype[represent] = formatString
+util.extend(String, represent, formatString)
 
 export function formatRegExp(this: RegExp, fmt: Formatter) {
     fmt.write('/', this.source, '/', this.flags)
 }
-RegExp.prototype[represent] = formatRegExp
+util.extend(RegExp, represent, formatRegExp)

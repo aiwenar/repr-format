@@ -1,4 +1,5 @@
 import Formatter from '../formatter'
+import util from '../util'
 import { represent } from '../common'
 
 export function formatFunction(this: Function, fmt: Formatter) {
@@ -8,4 +9,4 @@ export function formatFunction(this: Function, fmt: Formatter) {
         fmt.write('<function>')
     }
 }
-Function.prototype[represent] = formatFunction
+util.extend(Function, represent, formatFunction)

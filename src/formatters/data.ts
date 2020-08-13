@@ -1,4 +1,5 @@
 import Formatter from '../formatter'
+import util from '../util'
 import { represent } from '../common'
 
 export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
@@ -12,7 +13,7 @@ export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
         fmt.write(name, ' [ ', this.byteLength.toString(), ' bytes ]')
     }
 }
-ArrayBuffer.prototype[represent] = formatArrayBuffer
+util.extend(ArrayBuffer, represent, formatArrayBuffer)
 
 export function formatDataView(this: DataView, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
@@ -31,4 +32,4 @@ export function formatDataView(this: DataView, fmt: Formatter) {
         ' ]',
     )
 }
-DataView.prototype[represent] = formatDataView
+util.extend(DataView, represent, formatDataView)

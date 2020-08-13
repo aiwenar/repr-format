@@ -1,4 +1,5 @@
 import Formatter from '../formatter'
+import util from '../util'
 import { represent } from '../common'
 
 export function formatSet(this: Set<unknown>, fmt: Formatter) {
@@ -10,10 +11,10 @@ export function formatSet(this: Set<unknown>, fmt: Formatter) {
         }
     })
 }
-Set.prototype[represent] = formatSet
+util.extend(Set, represent, formatSet)
 
 export function formatWeakSet(this: WeakSet<object>, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
     fmt.write(name)
 }
-WeakSet.prototype[represent] = formatWeakSet
+util.extend(WeakSet, represent, formatWeakSet)

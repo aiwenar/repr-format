@@ -13,4 +13,4 @@ export function formatObject(this: object, fmt: Formatter) {
         }
     })
 }
-Object.prototype[represent] = formatObject
+util.extend(Object, represent, formatObject)

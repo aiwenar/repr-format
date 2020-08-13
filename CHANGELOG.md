@@ -4,6 +4,10 @@
 
 Migrated codebase to TypeScript.
 
+### Fixes
+
+- Fix [@@represent] showing up in ownKeys
+
 ## 0.2.0 - 2020-07-28
 
 ### Additions

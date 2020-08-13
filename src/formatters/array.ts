@@ -58,8 +58,8 @@ interface TypedArrayConstructor {
 }
 interface TypedArray {}
 
-Array.prototype[represent] = formatArray
-;(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor).prototype[represent] = formatArray
+util.extend(Array, represent, formatArray)
+util.extend(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor, represent, formatArray)
 
 const HEX = '0123456789abcdef'
 
@@ -90,4 +90,4 @@ export function formatByteArray(this: Uint8Array, fmt: Formatter) {
 
     fmt.write('"')
 }
-Uint8Array.prototype[represent] = formatByteArray
+util.extend(Uint8Array, represent, formatByteArray)
