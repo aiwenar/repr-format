@@ -1,6 +1,7 @@
+import Formatter from '../formatter'
 import { represent } from '../common'
 
-export function formatMap(fmt) {
+export function formatMap(this: Map<unknown, unknown>, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
 
     fmt.map(name, fmt => {
@@ -11,7 +12,7 @@ export function formatMap(fmt) {
 }
 Map.prototype[represent] = formatMap
 
-export function formatWeakMap(fmt) {
+export function formatWeakMap(this: WeakMap<object, unknown>, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
     fmt.write(name)
 }

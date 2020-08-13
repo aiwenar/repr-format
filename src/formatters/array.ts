@@ -1,7 +1,8 @@
+import Formatter from '../formatter'
 import util from '../util'
 import { represent } from '../common'
 
-export function formatArray(fmt) {
+export function formatArray(this: Array<unknown>, fmt: Formatter) {
     const { constructor } = Reflect.getPrototypeOf(this)
     const name = constructor === Array ? null : constructor.name
 
@@ -47,16 +48,22 @@ export function formatArray(fmt) {
         // And finally properties
         for (const prop of props.sort(util.compareKeys)) {
             if (prop === 'length') continue
-            fmt.field(prop, this[prop])
+            fmt.field(prop, this[prop as keyof Array<unknown>])
         }
     })
 }
+
+interface TypedArrayConstructor {
+    readonly prototype: TypedArray
+}
+interface TypedArray {}
+
 Array.prototype[represent] = formatArray
-Reflect.getPrototypeOf(Int8Array).prototype[represent] = formatArray
+;(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor).prototype[represent] = formatArray
 
 const HEX = '0123456789abcdef'
 
-export function formatByteArray(fmt) {
+export function formatByteArray(this: Uint8Array, fmt: Formatter) {
     const { constructor } = Reflect.getPrototypeOf(this)
     const name = constructor === Array ? 'Uint8Array' : constructor.name
 
@@ -84,4 +91,3 @@ export function formatByteArray(fmt) {
     fmt.write('"')
 }
 Uint8Array.prototype[represent] = formatByteArray
-

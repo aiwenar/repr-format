@@ -1,13 +1,8 @@
 /**
  * Escape a string.
- *
- * @param {string} str
- * @param {string} terminator
- *
- * @return {string}
  */
 // TODO: escape non-printables
-export default function escape(str, terminator) {
+export default function escape(str: string, terminator?: string): string {
     const r = str.replace(/[\0\n\r\v\t\b\f]/g, char => {
         switch (char) {
         case '\0':  return '\\0'
@@ -17,6 +12,7 @@ export default function escape(str, terminator) {
         case '\t':  return '\\t'
         case '\b':  return '\\b'
         case '\f':  return '\\f'
+        default:    return char
         }
     })
 

@@ -1,44 +1,39 @@
 /**
  * Compare two object keys.
  *
- * This function will sort string first, according to their natural order, then
- * unkeyed symbols, in random order, and finally keyed symbols, in natural order
- * of their keys.
- *
- * @param {string|symbol} a
- * @param {string|symbol} b
- *
- * @return {number}
+ * This function will sort number first, then strings, both according to their
+ * natural order, then unkeyed symbols, in random order, and finally keyed
+ * symbols, in natural order of their keys.
  */
-export default function compareKeys(a, b) {
-    switch ((typeof a === 'symbol') * 2 + (typeof b === 'symbol')) {
-    // false, false
-    case 0: return a < b ? -1 : a > b ? 1 : 0
-
-    // false, true
-    case 1: return -1
-
-    // true, false
-    case 2: return 1
-
-    // true, true
-    case 3: break
+export default function compareKeys(
+    a: string | number | symbol,
+    b: string | number | symbol,
+): number {
+    if (typeof a === 'number' && typeof b === 'number') {
+        return b - a
     }
+
+    if (typeof a === 'string' && typeof b === 'string') {
+        return a < b ? -1 : a > b ? 1 : 0
+    }
+
+    // Sort numbers before anything else
+    if (typeof a === 'number') return -1
+    if (typeof b === 'number') return 1
+
+    // Sort strings before symbols
+    if (typeof a === 'string') return -1
+    if (typeof b === 'string') return 1
 
     const akey = Symbol.keyFor(a)
     const bkey = Symbol.keyFor(b)
 
-    switch (Boolean(akey) + Boolean(bkey)) {
-    // false, false
-    case 0: return undefined // We can't sort if we can't inspect
+    // We can't sort if we can't inspect
+    if (akey == null && bkey == null) return 0
 
-    // false, true
-    case 1: return -1 // Sort unkeyed symbols before keyed
+    // Sort unkeyed symbols before keyed
+    if (akey == null) return -1
+    if (bkey == null) return 1
 
-    // true, false
-    case 2: return 1
-
-    // true, true
-    case 3: return akey < bkey ? -1 : akey > bkey ? 1 : 0
-    }
+    return akey < bkey ? -1 : akey > bkey ? 1 : 0
 }

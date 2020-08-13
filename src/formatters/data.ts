@@ -1,6 +1,7 @@
+import Formatter from '../formatter'
 import { represent } from '../common'
 
-export function formatArrayBuffer(fmt) {
+export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
 
     if (this.byteLength === 0) {
@@ -13,7 +14,7 @@ export function formatArrayBuffer(fmt) {
 }
 ArrayBuffer.prototype[represent] = formatArrayBuffer
 
-export function formatDataView(fmt) {
+export function formatDataView(this: DataView, fmt: Formatter) {
     const name = Reflect.getPrototypeOf(this).constructor.name
     const byte_bytes = this.byteLength === 1 ? 'byte' : 'bytes'
 

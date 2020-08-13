@@ -1,15 +1,10 @@
-import Formatter from './formatter'
+import Formatter, { Options } from './formatter'
 import { represent } from './common'
 
 /**
  * Format a value.
- *
- * @param {any} value
- * @param {?(Formatter|Formatter~Options)} formatterOrOptions
- *
- * @return {String}
  */
-export default function format(value, formatterOrOptions) {
+export default function format(value: unknown, formatterOrOptions?: Formatter | Options): string {
     let options = {}
     let formatter = null
 
@@ -25,7 +20,7 @@ export default function format(value, formatterOrOptions) {
         formatter = new Formatter(options)
     }
 
-    formatter.format(value, formatter)
+    formatter.format(value)
 
     return formatter.toString()
 }

@@ -2,80 +2,90 @@ import util from './util'
 import * as formatters from './formatters'
 import { represent } from './common'
 
-/**
- * @typedef {Object} Formatter~Options
- *
- * @property {?number} [limitDepth] When set, any value nested deeper will
- * be elided from output.
- *
- * @property {boolean} [pretty=true] When set to false (default) the value will
- * be formatted in a concise manner in a single line. When set to true the value
- * will be formatted over multiple lines with indentation, to aid in reading.
- *
- * @property {string} [indent='  '] When {@link #pretty} is set to true, use
- * this string for a single level of indentation.
- *
- * @property {number} [depth=0] Current depth. Counts towards
- * {@link #limitDepth}, and as a default indentation level for {@link #pretty}.
- */
+export interface Options {
+    /**
+     * When set, any value nested deeper will be elided from output.
+     */
+    limitDepth?: number
+    /**
+     * When set to false (default) the value will be formatted in a concise
+     * manner in a single line. When set to true the value will be formatted
+     * over multiple lines with indentation, to aid in reading.
+     *
+     * @default true
+     */
+    pretty?: boolean
+    /**
+     * When {@link #pretty} is set to true, use this string for a single level
+     * of indentation.
+     *
+     * @default '  '
+     */
+    indent?: string
+    /**
+     * Current depth. Counts towards {@link #limitDepth}, and as a default
+     * indentation level for {@link #pretty}.
+     *
+     * @default 0
+     */
+    depth?: number
+}
 
 export default class Formatter {
-    constructor(options={}) {
-        const { pretty, indent, depth, limitDepth, ...rest } = options
+    static Struct: typeof Struct
+    static List: typeof List
+    static Set: typeof Set
+    static Map: typeof Map
+
+    /**
+     * Buffer storing current (partial) formatted value.
+     */
+    result: string
+    /**
+     * True if the last character written was a newline.
+     */
+    onNewline: boolean
+    /**
+     * Are we pretty-printing, or printing in a single row?
+     */
+    pretty: boolean
+    /**
+     * String to use as indentation per single depth level.
+     */
+    indent: string
+    /**
+     * Current indentation depth.
+     */
+    depth: number
+    /**
+     * Maximum depth before we start eliding.
+     */
+    limitDepth: number
+
+    constructor(options: Options = {}) {
+        const { pretty = false, indent = '  ', depth = 0, limitDepth = Infinity, ...rest } = options
 
         if (Reflect.ownKeys(rest).length > 0) {
             const invalid = Reflect.ownKeys(rest).join(', ')
             throw new Error('Invalid options to Formatter: ' + invalid)
         }
 
-        /**
-         * Buffer storing current (partial) formatted value.
-         *
-         * @type {String}
-         */
         this.result = ""
-        /**
-         * True if the last character written was a newline.
-         *
-         * @type {Boolean}
-         */
         this.onNewline = false
-        /**
-         * Are we pretty-printing, or printing in a single row?
-         *
-         * @type {Boolean}
-         */
-        this.pretty = pretty || false
-        /**
-         * String to use as indentation per single depth level.
-         *
-         * @type {String}
-         */
-        this.indent = indent || '  '
-        /**
-         * Current indentation depth.
-         *
-         * @type {Number}
-         */
-        this.depth = depth || 0
-        /**
-         * Maximum depth before we start eliding.
-         *
-         * @type {Number}
-         */
-        this.limitDepth = limitDepth || Infinity
+        this.pretty = pretty
+        this.indent = indent
+        this.depth = depth
+        this.limitDepth = limitDepth
     }
 
-    toString() {
+    toString(): string {
         return this.result
     }
 
     /**
      * Write representation of a value to the underlying buffer.
-     *
-     * @param {any} value
      */
-    format(value) {
+    format(value: unknown): void {
         // Special case null, since typeof null === 'object'
         if (value === null) {
             return this.write('null')
@@ -83,11 +93,13 @@ export default class Formatter {
 
         // First try using custom formatters, ...
 
-        let proto
-        try {
-            proto = Reflect.getPrototypeOf(value)
-        } catch(ex) {
-            proto = null
+        let proto = null
+        if (typeof value === 'object') {
+            try {
+                proto = Reflect.getPrototypeOf(value!)
+            } catch {
+                proto = null
+            }
         }
 
         if (proto && represent in proto) {
@@ -108,8 +120,6 @@ export default class Formatter {
      *
      * @protected
      *
-     * @param {any} value
-     *
      * @example
      *
      * class Custom extends Formatter {
@@ -125,9 +135,9 @@ export default class Formatter {
      * new Custom().format(86).toString() // => "even"
      * new Custom().format(3.14).toString() // => "not an integer"
      */
-    formatDefault(value) {
+    formatDefault(value: NonNullable<unknown>): void {
         switch (typeof value) {
-        case 'object':      return formatters.formatObject.call(value, this)
+        case 'object':      return formatters.formatObject.call(value!, this)
         case 'function':    return formatters.formatFunction.call(value, this)
         case 'string':      return formatters.formatString.call(value, this)
         case 'symbol':      return formatters.formatSymbol.call(value, this)
@@ -136,9 +146,6 @@ export default class Formatter {
         case 'number':
         case 'boolean':
             return this.write(value.toString())
-
-        default:
-            return this.write('<', typeof value, ': ', value.toString(), '>')
         }
 
         throw new Error('not implemented')
@@ -153,14 +160,12 @@ export default class Formatter {
      * implement a custom formatter, have a look at higher level formatting
      * functions, such as {@link #struct}.
      *
-     * @param {...string} data
-     *
      * @see #struct
      * @see #list
      * @see #set
      * @see #map
      */
-    write(...data) {
+    write(...data: string[]) {
         for (const item of data) {
             if (typeof item !== 'string') {
                 throw new Error('Expected a string, not ' + typeof item)
@@ -169,7 +174,7 @@ export default class Formatter {
         }
     }
 
-    _write(str) {
+    _write(str: string): void {
         if (!this.pretty) {
             this.result += str
             return
@@ -184,14 +189,14 @@ export default class Formatter {
 
             if (inx === -1) {
                 this.result += str
-                str = false
+                str = ''
                 this.onNewline = false
             } else {
                 this.result += str.slice(0, inx + 1)
                 str = str.slice(inx + 1)
                 this.onNewline = true
             }
-        } while (str)
+        } while (str.length > 0)
     }
 
     /**
@@ -215,9 +220,6 @@ export default class Formatter {
      * kind of objects. Additionally if {@link #pretty} is set it will also take
      * care of formatting.
      *
-     * @param {?(string|object|null)} name
-     * @param {function(Formatter~Struct)} callback
-     *
      * @see #list
      * @see #set
      * @see #map
@@ -233,8 +235,8 @@ export default class Formatter {
      *
      * Name { foo: "bar", buz: [1, 2, 3] }
      */
-    struct(name, callback) {
-        this._subformatter(this.constructor.Struct, name, callback)
+    struct(name: string | null, callback: (fmt: Struct) => void) {
+        this._subformatter(Struct, name, callback)
     }
 
     /**
@@ -242,9 +244,6 @@ export default class Formatter {
      *
      * A variation of {@link #struct}. This function will use {@code "["}
      * and {@code "]"} as opening and closing delimiters.
-     *
-     * @param {?(string|object|null)} name
-     * @param {function(Formatter~List)} callback
      *
      * @see #struct
      *
@@ -260,17 +259,14 @@ export default class Formatter {
      *
      * Name [1, 2, 3]
      */
-    list(name, callback) {
-        this._subformatter(this.constructor.List, name, callback)
+    list(name: string | null, callback: (fmt: List) => void) {
+        this._subformatter(List, name, callback)
     }
 
     /**
      * Helper function for formatting set-like objects.
      *
      * A variation of {@link #struct}.
-     *
-     * @param {?(string|object|null)} name
-     * @param {function(Formatter~Set)} callback
      *
      * @see #struct
      *
@@ -286,17 +282,14 @@ export default class Formatter {
      *
      * Name { 1, 2, 3 }
      */
-    set(name, callback) {
-        this._subformatter(this.constructor.Set, name, callback)
+    set(name: string | null, callback: (fmt: Set) => void) {
+        this._subformatter(Set, name, callback)
     }
 
     /**
      * Helper function for formatting map-like objects.
      *
      * A variation of {@link #struct}.
-     *
-     * @param {?(string|object|null)} name
-     * @param {function(Formatter~Map)} callback
      *
      * @see #struct
      *
@@ -311,18 +304,25 @@ export default class Formatter {
      *
      * Name { "foo" => 1, "bar" => "baz" }
      */
-    map(name, callback) {
-        this._subformatter(this.constructor.Map, name, callback)
+    map(name: string | null, callback: (fmt: Map) => void) {
+        this._subformatter(Map, name, callback)
     }
 
-    /**
-     * @private
-     *
-     * @param {Class<SubFormatter>} formatter
-     * @param {?(string|object|null)} name
-     * @param {function(typeof formatter)} callback
-     */
-    _subformatter(formatter, name, callback) {
+    private _subformatter<F extends SubFormatter>(
+        formatter: { new(fmt: Formatter, name: string | null): F },
+        callback: (fmt: F) => void,
+    ): void
+    private _subformatter<F extends SubFormatter>(
+        formatter: { new(fmt: Formatter, name: string | null): F },
+        name: string | null,
+        callback: (fmt: F) => void,
+    ): void
+
+    private _subformatter<F extends SubFormatter>(
+        Formatter: { new(fmt: Formatter, name: string | null): F },
+        name: string | null | ((fmt: F) => void),
+        callback?: (fmt: F) => void,
+    ): void {
         if (typeof name === 'function') {
             callback = name
             name = null
@@ -332,14 +332,14 @@ export default class Formatter {
             name = Reflect.getPrototypeOf(name).constructor.name
         }
 
-        formatter = new formatter(this, name)
+        const formatter = new Formatter(this, name)
         formatter.begin()
 
         if (this.pretty) {
             this.depth += 1
         }
 
-        callback(formatter)
+        callback!(formatter)
 
         if (this.pretty) {
             this.depth -= 1
@@ -356,7 +356,13 @@ export default class Formatter {
  * subclasses can focus on just content.
  */
 export class SubFormatter {
-    constructor(formatter, name) {
+    formatter: Formatter
+    name: string | null
+    open: string
+    close: string
+    has_elements: boolean
+
+    constructor(formatter: Formatter, name: string | null) {
         this.formatter = formatter
         this.name = name
 
@@ -368,17 +374,15 @@ export class SubFormatter {
 
     /**
      * Are we pretty-printing?
-     *
-     * @type {boolean}
      */
-    get pretty() { return this.formatter.pretty }
+    get pretty(): boolean { return this.formatter.pretty }
 
     /**
      * Write some data to the underlying buffer.
      *
      * @see Formatter#write
      */
-    write(...args) {
+    write(...args: string[]): void {
         this.formatter.write(...args)
     }
 
@@ -387,14 +391,14 @@ export class SubFormatter {
      *
      * @see Formatter#format
      */
-    format(value) {
+    format(value: unknown): void {
         this.formatter.format(value)
     }
 
     /**
      * Write what should be before the main content.
      */
-    begin() {
+    begin(): void {
         if (this.name) {
             this.write(this.name, ' ')
         }
@@ -404,7 +408,7 @@ export class SubFormatter {
     /**
      * Write what should be after the main content.
      */
-    finish() {
+    finish(): void {
         if (this.has_elements) {
             this.write(this.pretty ? ',\n' : ' ')
         }
@@ -420,10 +424,8 @@ export class SubFormatter {
      *
      * When using sub-formatters you should generally avoid calling
      * {@link #format} and {@link write} outside of a callback to this function.
-     *
-     * @param {function()|string} cb
      */
-    write_item(cb) {
+    write_item(cb: string | (() => void)): void {
         if (this.has_elements) {
             this.write(this.pretty ? ',\n' : ', ')
         } else {
@@ -443,16 +445,13 @@ export class SubFormatter {
 /**
  * Formatter for structured (Object-like) data.
  */
-Formatter.Struct = class Struct extends SubFormatter {
+class Struct extends SubFormatter {
     /**
      * Write a single field.
-     *
-     * @param {string|symbol} name
-     * @param {any} value
      */
-    field(name, value) {
+    field(name: PropertyKey, value: unknown): void {
         super.write_item(() => {
-            if (typeof name === 'symbol') {
+            if (typeof name === 'symbol' || typeof name === 'number') {
                 this.format(name)
             } else if (util.isIdentifier(name)) {
                 this.write(name)
@@ -465,16 +464,17 @@ Formatter.Struct = class Struct extends SubFormatter {
         })
     }
 }
+Formatter.Struct = Struct
 
 /**
  * Formatter for sequences.
  *
- * This class extends {@link Formatter~Struct} because arrays in JavaScript can
- * actually contain non-numeric properties, and thus we need {@link #field}
- * to format them.
+ * This class extends {@link Struct} because arrays in JavaScript can actually
+ * contain non-numeric properties, and thus we need {@link #field} to format
+ * them.
  */
-Formatter.List = class List extends Formatter.Struct {
-    constructor(...args) {
+class List extends Struct {
+    constructor(...args: ConstructorParameters<typeof Struct>) {
         super(...args)
 
         this.open = '['
@@ -483,47 +483,42 @@ Formatter.List = class List extends Formatter.Struct {
 
     /**
      * Write a single entry in this sequence.
-     *
-     * @param {any} value
      */
-    entry(value) {
+    entry(value: unknown): void {
         super.write_item(() => this.format(value))
     }
 }
+Formatter.List = List
 
 /**
  * Formatter for sets.
  *
- * This differs from {@link Formatter~List} in that it uses {@code "{"} and
- * {@code "}"} as delimiters, and only supports entries; there's no equivalent
- * of {@link Formatter~List#field} for sets.
+ * This differs from {@link List} in that it uses {@code "{"} and {@code "}"} as
+ * delimiters, and only supports entries; there's no equivalent
+ * of {@link List#field} for sets.
  */
-Formatter.Set = class List extends SubFormatter {
+class Set extends SubFormatter {
     /**
      * Write a single entry in this set.
-     *
-     * @param {any} value
      */
-    entry(value) {
+    entry(value: unknown): void {
         super.write_item(() => this.format(value))
     }
 }
+Formatter.Set = Set
 
 /**
  * Formatter for maps.
  *
- * This is similar to {@link Formatter~Struct}, except that it uses {@code "=>"}
+ * This is similar to {@link Struct}, except that it uses {@code "=>"}
  * as key-value separator, allows any object as key, not just strings and
  * symbols, and that it formats its string keys.
  */
-Formatter.Map = class Map extends SubFormatter {
+class Map extends SubFormatter {
     /**
      * Write a single entry in this map.
-     *
-     * @param {any} key
-     * @param {any} value
      */
-    entry(key, value) {
+    entry(key: unknown, value: unknown): void {
         this.write_item(() => {
             this.format(key)
             this.write(' => ')
@@ -531,3 +526,4 @@ Formatter.Map = class Map extends SubFormatter {
         })
     }
 }
+Formatter.Map = Map
