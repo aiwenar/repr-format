@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Migrated codebase to TypeScript.
+
 ## 0.2.0 - 2020-07-28
 
 ### Additions

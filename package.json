@@ -5,15 +5,15 @@
   "version": "0.2.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
-  "types": "index.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "index.d.ts"
+    "dist"
   ],
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.21.3",
-    "@rollup/plugin-node-resolve": "^8.4.0",
-    "rollup": "^2.21.0"
+    "rollup": "^2.21.0",
+    "rollup-plugin-typescript2": "^0.27.2",
+    "tslib": "^2.0.1",
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "prepack": "rollup -c",

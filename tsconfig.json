@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        "noErrorTruncation": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "sourceMap": true,
+        "strict": true,
+        "target": "es2020",
+    },
+}
