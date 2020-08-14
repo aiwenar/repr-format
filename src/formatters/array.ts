@@ -1,6 +1,7 @@
 import Formatter from '../formatter'
 import util from '../util'
 import { represent } from '../common'
+import { formatField } from './object'
 
 export function formatArray(this: Array<unknown>, fmt: Formatter) {
     fmt.list(this, fmt => {
@@ -48,9 +49,7 @@ export function formatArray(this: Array<unknown>, fmt: Formatter) {
 
         // And finally properties
         for (const prop of props.sort(util.compareKeys)) {
-            if (Reflect.getOwnPropertyDescriptor(this, prop)!.enumerable) {
-                fmt.field(prop, this[prop as keyof Array<unknown>])
-            }
+            formatField(fmt, this, prop)
         }
     })
 }

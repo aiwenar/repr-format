@@ -150,8 +150,14 @@ export default class Formatter {
         if (typeof value === 'object') {
             try {
                 proto = Reflect.getPrototypeOf(value!)
-            } catch {
-                proto = null
+            } catch (ex) {
+                const value = [ex.name, ' when formatting']
+
+                if (ex.message.length > 0) {
+                    value.push(': ', ex.message)
+                }
+
+                return this.write({ style: 'hint', value })
             }
 
             if (util.isProxy(value!)) {
@@ -496,11 +502,18 @@ export class SubFormatter {
 /**
  * Formatter for structured (Object-like) data.
  */
-class Struct extends SubFormatter {
+export class Struct extends SubFormatter {
+    /**
+     * Format a single field.
+     */
+    field(name: PropertyKey, value: unknown): void {
+        this.write_field(name, () => this.format(value))
+    }
+
     /**
      * Write a single field.
      */
-    field(name: PropertyKey, value: unknown): void {
+    write_field(name: PropertyKey, cb: () => void): void {
         super.write_item(() => {
             if (typeof name === 'symbol' || typeof name === 'number') {
                 this.format(name)
@@ -511,7 +524,7 @@ class Struct extends SubFormatter {
             }
 
             this.write(': ')
-            this.format(value)
+            cb()
         })
     }
 }
