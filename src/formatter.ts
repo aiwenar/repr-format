@@ -524,7 +524,7 @@ Formatter.Struct = Struct
  * contain non-numeric properties, and thus we need {@link #field} to format
  * them.
  */
-class List extends Struct {
+export class List extends Struct {
     constructor(...args: ConstructorParameters<typeof Struct>) {
         super(...args)
 
@@ -548,7 +548,7 @@ Formatter.List = List
  * delimiters, and only supports entries; there's no equivalent
  * of {@link List#field} for sets.
  */
-class Set extends SubFormatter {
+export class Set extends SubFormatter {
     /**
      * Write a single entry in this set.
      */
@@ -565,7 +565,7 @@ Formatter.Set = Set
  * as key-value separator, allows any object as key, not just strings and
  * symbols, and that it formats its string keys.
  */
-class Map extends SubFormatter {
+export class Map extends SubFormatter {
     /**
      * Write a single entry in this map.
      */
