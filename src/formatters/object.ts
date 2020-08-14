@@ -9,7 +9,9 @@ export function formatObject(this: object, fmt: Formatter) {
 
     fmt.struct(name, fmt => {
         for (const key of Reflect.ownKeys(this).sort(util.compareKeys)) {
-            fmt.field(key, this[key as keyof object])
+            if (Reflect.getOwnPropertyDescriptor(this, key)!.enumerable) {
+                fmt.field(key, this[key as keyof object])
+            }
         }
     })
 }

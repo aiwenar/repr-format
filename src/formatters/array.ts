@@ -47,8 +47,9 @@ export function formatArray(this: Array<unknown>, fmt: Formatter) {
 
         // And finally properties
         for (const prop of props.sort(util.compareKeys)) {
-            if (prop === 'length') continue
-            fmt.field(prop, this[prop as keyof Array<unknown>])
+            if (Reflect.getOwnPropertyDescriptor(this, prop)!.enumerable) {
+                fmt.field(prop, this[prop as keyof Array<unknown>])
+            }
         }
     })
 }
