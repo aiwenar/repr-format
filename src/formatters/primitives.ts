@@ -27,3 +27,15 @@ export function formatRegExp(this: RegExp, fmt: Formatter) {
     fmt.write('/', this.source, '/', this.flags)
 }
 util.extend(RegExp, represent, formatRegExp)
+
+export function formatNumberWrapper(this: Boolean | Number, fmt: Formatter) {
+    const name = Reflect.getPrototypeOf(this).constructor.name
+    fmt.write('[' + name + ': ' + this.valueOf() + ']')
+}
+util.extend(Boolean, represent, formatNumberWrapper)
+util.extend(Number, represent, formatNumberWrapper)
+
+export function formatStringWrapper(this: String, fmt: Formatter) {
+    fmt.write('[String: "' + util.escape(this.valueOf(), '"') + '"]')
+}
+util.extend(String, represent, formatStringWrapper)

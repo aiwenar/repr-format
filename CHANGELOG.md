@@ -10,6 +10,7 @@ Migrated codebase to TypeScript.
   used to control complexity threshold objects must exceed to be formatted over
   multiple lines.
 - Show when formatted value includes multiple references to the same object.
+- Formatters for primitive wrapper objects: `Boolean`, `Number`, and `String`.
 
 ### Fixes
 
