@@ -15,6 +15,7 @@ Migrated codebase to TypeScript.
 - Formatter for `Error`s.
 - Include `Symbol.toStringTag` in object's name.
 - Interface for applying colour and styles.
+- `console.repr` extension for Node.js and browser.
 
 ### Fixes
 
