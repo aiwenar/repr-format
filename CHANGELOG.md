@@ -4,6 +4,12 @@
 
 Migrated codebase to TypeScript.
 
+### Additions
+
+- Improved multiline formatting. New formatter option `maxComplexity` can be
+  used to control complexity threshold objects must exceed to be formatted over
+  multiple lines.
+
 ### Fixes
 
 - Fix [@@represent] showing up in ownKeys

@@ -1,3 +1,4 @@
+import Buffer, { Fragment } from './buffer'
 import util from './util'
 import * as formatters from './formatters'
 import { represent } from './common'
@@ -29,6 +30,16 @@ export interface Options {
      * @default 0
      */
     depth?: number
+    /**
+     * Maximum complexity allowed before formatting over multiple lines.
+     *
+     * Complexity of an object is measured by adding complexities of its
+     * fields. Each object has complexity of at least one, non-objects and
+     * objects without fields have complexity of 0.
+     *
+     * @default 3 when {@link #pretty} is `true`, `Infinity` otherwise
+     */
+    maxComplexity?: number
 }
 
 export default class Formatter {
@@ -40,15 +51,7 @@ export default class Formatter {
     /**
      * Buffer storing current (partial) formatted value.
      */
-    result: string
-    /**
-     * True if the last character written was a newline.
-     */
-    onNewline: boolean
-    /**
-     * Are we pretty-printing, or printing in a single row?
-     */
-    pretty: boolean
+    result: Buffer
     /**
      * String to use as indentation per single depth level.
      */
@@ -61,25 +64,35 @@ export default class Formatter {
      * Maximum depth before we start eliding.
      */
     limitDepth: number
+    /**
+     * Maximum complexity allowed before formatting over multiple lines.
+     */
+    maxComplexity: number
 
     constructor(options: Options = {}) {
-        const { pretty = false, indent = '  ', depth = 0, limitDepth = Infinity, ...rest } = options
+        const {
+            pretty = false, indent = '  ', depth = 0, limitDepth = Infinity,
+            maxComplexity, ...rest
+        } = options
 
         if (Reflect.ownKeys(rest).length > 0) {
             const invalid = Reflect.ownKeys(rest).join(', ')
             throw new Error('Invalid options to Formatter: ' + invalid)
         }
 
-        this.result = ""
-        this.onNewline = false
-        this.pretty = pretty
+        this.result = new Buffer()
         this.indent = indent
         this.depth = depth
         this.limitDepth = limitDepth
+        this.maxComplexity = pretty ? maxComplexity ?? 3 : Infinity
     }
 
     toString(): string {
-        return this.result
+        return this.result.flush({
+            depth: this.depth,
+            indent: this.indent,
+            maxComplexity: this.maxComplexity,
+        }).value
     }
 
     /**
@@ -165,38 +178,29 @@ export default class Formatter {
      * @see #set
      * @see #map
      */
-    write(...data: string[]) {
+    write(...data: Fragment[]) {
         for (const item of data) {
-            if (typeof item !== 'string') {
-                throw new Error('Expected a string, not ' + typeof item)
-            }
             this._write(item)
         }
     }
 
-    _write(str: string): void {
-        if (!this.pretty) {
-            this.result += str
-            return
+    _write(fragment: Fragment): void {
+        if (typeof fragment !== 'string') {
+            return this.result.push(fragment)
         }
 
         do {
-            if (this.onNewline) {
-                this.result += this.indent.repeat(this.depth)
-            }
-
-            const inx = str.indexOf('\n')
+            const inx = fragment.indexOf('\n')
 
             if (inx === -1) {
-                this.result += str
-                str = ''
-                this.onNewline = false
+                this.result.push(fragment)
+                fragment = ''
             } else {
-                this.result += str.slice(0, inx + 1)
-                str = str.slice(inx + 1)
-                this.onNewline = true
+                this.result.push(fragment.slice(0, inx + 1))
+                fragment = fragment.slice(inx + 1)
+                this.result.push({ break: 'hard', indent: this.depth })
             }
-        } while (str.length > 0)
+        } while (fragment.length > 0)
     }
 
     /**
@@ -332,20 +336,22 @@ export default class Formatter {
             name = Reflect.getPrototypeOf(name).constructor.name
         }
 
+        const buffer = this.result
+        this.result = new Buffer()
+
         const formatter = new Formatter(this, name)
         formatter.begin()
 
-        if (this.pretty) {
-            this.depth += 1
-        }
+        this.depth += 1
 
         callback!(formatter)
 
-        if (this.pretty) {
-            this.depth -= 1
-        }
+        this.depth -= 1
 
         formatter.finish()
+
+        buffer.push(this.result)
+        this.result = buffer
     }
 }
 
@@ -373,16 +379,11 @@ export class SubFormatter {
     }
 
     /**
-     * Are we pretty-printing?
-     */
-    get pretty(): boolean { return this.formatter.pretty }
-
-    /**
      * Write some data to the underlying buffer.
      *
      * @see Formatter#write
      */
-    write(...args: string[]): void {
+    write(...args: Fragment[]): void {
         this.formatter.write(...args)
     }
 
@@ -410,7 +411,7 @@ export class SubFormatter {
      */
     finish(): void {
         if (this.has_elements) {
-            this.write(this.pretty ? ',\n' : ' ')
+            this.write({ break: 'soft', text: ' ', indent: this.formatter.depth })
         }
         this.write(this.close)
     }
@@ -427,10 +428,9 @@ export class SubFormatter {
      */
     write_item(cb: string | (() => void)): void {
         if (this.has_elements) {
-            this.write(this.pretty ? ',\n' : ', ')
-        } else {
-            this.write(this.pretty ? '\n' : ' ')
+            this.write(',')
         }
+        this.write({ break: 'soft', text: ' ', indent: this.formatter.depth })
         if (typeof cb === 'function') {
             cb()
         } else if (typeof cb === 'string') {
