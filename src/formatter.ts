@@ -74,7 +74,12 @@ export default class Formatter {
      *
      * This map is used to detect cycles.
      */
-    private seen: WeakSet<object>
+    private seen: WeakMap<object, formatters.Reference>
+
+    /**
+     * Value currently being formatted.
+     */
+    private current: null | unknown
 
     constructor(options: Options = {}) {
         const {
@@ -93,7 +98,8 @@ export default class Formatter {
         this.limitDepth = limitDepth
         this.maxComplexity = pretty ? maxComplexity ?? 3 : Infinity
 
-        this.seen = new WeakSet()
+        this.seen = new WeakMap()
+        this.current = null
     }
 
     toString(): string {
@@ -115,9 +121,15 @@ export default class Formatter {
 
         // Detect cycles
         if (typeof value === 'object') {
-            if (this.seen.has(value!)) return this.write('<cycle>')
+            let ref = this.seen.get(value!)
 
-            this.seen.add(value!)
+            if (ref != null) {
+                return this.write(ref.addRef())
+            } else {
+                ref = formatters.formatReference(this)
+                this.seen.set(value!, ref)
+                this.write(ref.source)
+            }
         }
 
         // First try using custom formatters, ...
@@ -131,13 +143,16 @@ export default class Formatter {
             }
         }
 
+        this.current = value
+
         if (proto && represent in proto) {
             return proto[represent].call(value, this)
+        } else {
+            // ... and fall back to defaults if there's none.
+            this.formatDefault(value)
         }
 
-        // ... and fall back to defaults if there's none.
-
-        return this.formatDefault(value)
+        this.current = null
     }
 
     /**

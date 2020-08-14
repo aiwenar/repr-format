@@ -1,4 +1,14 @@
-export type Fragment = string | HardBreak | SoftBreak | Buffer
+export type Fragment = Immediate | Deferred
+
+/**
+ * Fragment immediately available for formatting.
+ */
+export type Immediate = string | HardBreak | SoftBreak
+
+/**
+ * Fragment which has not yet been formatted.
+ */
+export type Deferred = Buffer | (() => Fragment | Fragment[])
 
 /**
  * Always break here
@@ -102,7 +112,7 @@ export default class Buffer {
             complexity: 0,
             multiline: false,
         }
-        const partial = []
+        const partial: Immediate[] = []
 
         let nestedBuffers = 0
 
@@ -122,6 +132,8 @@ export default class Buffer {
 
                 fragment = value
                 nestedBuffers += 1
+            } else if (typeof fragment === 'function') {
+                return processFragment(fragment())
             } else if (typeof fragment === 'object' && fragment.break === 'hard') {
                 result.multiline = true
             }

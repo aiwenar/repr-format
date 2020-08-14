@@ -9,6 +9,7 @@ Migrated codebase to TypeScript.
 - Improved multiline formatting. New formatter option `maxComplexity` can be
   used to control complexity threshold objects must exceed to be formatted over
   multiple lines.
+- Show when formatted value includes multiple references to the same object.
 
 ### Fixes
 
