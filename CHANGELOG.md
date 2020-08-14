@@ -11,6 +11,7 @@ Migrated codebase to TypeScript.
   multiple lines.
 - Show when formatted value includes multiple references to the same object.
 - Formatters for primitive wrapper objects: `Boolean`, `Number`, and `String`.
+- Formatter for `Error`s.
 
 ### Fixes
 

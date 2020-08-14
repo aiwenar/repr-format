@@ -39,3 +39,12 @@ export function formatStringWrapper(this: String, fmt: Formatter) {
     fmt.write('[String: "' + util.escape(this.valueOf(), '"') + '"]')
 }
 util.extend(String, represent, formatStringWrapper)
+
+export function formatError(this: Error, fmt: Formatter) {
+    fmt.write('[', this.name)
+    if (this.message.length > 0) {
+        fmt.write(': ' + this.message)
+    }
+    fmt.write(']')
+}
+util.extend(Error, represent, formatError)
