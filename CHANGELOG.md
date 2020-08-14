@@ -13,6 +13,7 @@ Migrated codebase to TypeScript.
 ### Fixes
 
 - Fix [@@represent] showing up in ownKeys
+- Fix unbounded recursion when formatting reference cycles
 
 ## 0.2.0 - 2020-07-28
 

@@ -69,6 +69,13 @@ export default class Formatter {
      */
     maxComplexity: number
 
+    /**
+     * Objects already visited during formatting.
+     *
+     * This map is used to detect cycles.
+     */
+    private seen: WeakSet<object>
+
     constructor(options: Options = {}) {
         const {
             pretty = false, indent = '  ', depth = 0, limitDepth = Infinity,
@@ -85,6 +92,8 @@ export default class Formatter {
         this.depth = depth
         this.limitDepth = limitDepth
         this.maxComplexity = pretty ? maxComplexity ?? 3 : Infinity
+
+        this.seen = new WeakSet()
     }
 
     toString(): string {
@@ -102,6 +111,13 @@ export default class Formatter {
         // Special case null, since typeof null === 'object'
         if (value === null) {
             return this.write('null')
+        }
+
+        // Detect cycles
+        if (typeof value === 'object') {
+            if (this.seen.has(value!)) return this.write('<cycle>')
+
+            this.seen.add(value!)
         }
 
         // First try using custom formatters, ...
