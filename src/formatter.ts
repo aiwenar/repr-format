@@ -141,6 +141,10 @@ export default class Formatter {
             } catch {
                 proto = null
             }
+
+            if (util.isProxy(value!)) {
+                this.write('proxy ')
+            }
         }
 
         this.current = value

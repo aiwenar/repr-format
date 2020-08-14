@@ -2,6 +2,7 @@ import compareKeys from './compareKeys'
 import escape from './escape'
 import extend from './extend'
 import isIdentifier from './isIdentifier'
+import isProxy from './isProxy'
 import objectName from './objectName'
 
 export default {
@@ -9,5 +10,6 @@ export default {
     escape,
     extend,
     isIdentifier,
+    isProxy,
     objectName,
 }
