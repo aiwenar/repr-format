@@ -190,9 +190,10 @@ export default class Formatter {
         case 'number':
         case 'boolean':
             return this.write(value.toString())
-        }
 
-        throw new Error('not implemented')
+        case 'bigint':
+            return this.write(value.toString(), 'n')
+        }
     }
 
     /**
