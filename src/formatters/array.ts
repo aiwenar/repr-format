@@ -22,10 +22,13 @@ export function formatArray(this: Array<unknown>, fmt: Formatter) {
                 props.push(key)
             } else {
                 const dif = num - lastKey - 1
-                if (dif === 1) {
-                    fmt.write_item('undefined')
-                } else if (dif > 1) {
-                    fmt.write_item('undefined × ' + dif.toString())
+                if (dif > 0) {
+                    fmt.write_item({
+                        style: 'undefined',
+                        value: dif === 1
+                            ? 'empty item'
+                            :  (dif.toString() + ' empty items')
+                    })
                 }
                 fmt.entry(this[num])
                 lastKey = num
@@ -35,11 +38,12 @@ export function formatArray(this: Array<unknown>, fmt: Formatter) {
         // Then append any remaining unset entries
         if (lastKey + 1 < this.length) {
             const dif = this.length - lastKey - 1
-            if (dif === 1) {
-                fmt.write_item('undefined')
-            } else {
-                fmt.write_item('undefined × ' + dif.toString())
-            }
+            fmt.write_item({
+                style: 'undefined',
+                value: dif === 1
+                    ? 'empty item'
+                    :  dif.toString() + ' empty items'
+            })
         }
 
         // And finally properties
@@ -62,7 +66,7 @@ util.extend(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor, represen
 const HEX = '0123456789abcdef'
 
 export function formatByteArray(this: Uint8Array, fmt: Formatter) {
-    fmt.write(util.objectName(this)!, ' "')
+    let value = '"'
 
     for (const byte of this) {
         switch (byte) {
@@ -77,12 +81,14 @@ export function formatByteArray(this: Uint8Array, fmt: Formatter) {
         }
 
         if (byte >= 0x20 && byte <= 0x7e) {
-            fmt.write(String.fromCharCode(byte))
+            value += String.fromCharCode(byte)
         } else {
-            fmt.write('\\x', HEX[Math.floor(byte / 16)], HEX[byte % 16])
+            value += '\\x' + HEX[Math.floor(byte / 16)] + HEX[byte % 16]
         }
     }
 
-    fmt.write('"')
+    value += '"'
+
+    fmt.write(util.objectName(this)!, ' ', { style: 'string', value })
 }
 util.extend(Uint8Array, represent, formatByteArray)

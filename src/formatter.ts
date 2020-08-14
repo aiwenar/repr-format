@@ -1,7 +1,7 @@
 import Buffer, { Fragment } from './buffer'
 import util from './util'
 import * as formatters from './formatters'
-import { represent } from './common'
+import { StyleProcessor, represent } from './common'
 
 export interface Options {
     /**
@@ -40,6 +40,12 @@ export interface Options {
      * @default 3 when {@link #pretty} is `true`, `Infinity` otherwise
      */
     maxComplexity?: number
+    /**
+     * Style processor
+     *
+     * @default a function returning empty formatting for each colour
+     */
+    style?: StyleProcessor
 }
 
 export default class Formatter {
@@ -68,6 +74,10 @@ export default class Formatter {
      * Maximum complexity allowed before formatting over multiple lines.
      */
     maxComplexity: number
+    /**
+     * Style processor
+     */
+    style: StyleProcessor
 
     /**
      * Objects already visited during formatting.
@@ -84,7 +94,7 @@ export default class Formatter {
     constructor(options: Options = {}) {
         const {
             pretty = false, indent = '  ', depth = 0, limitDepth = Infinity,
-            maxComplexity, ...rest
+            maxComplexity, style = () => ['', ''], ...rest
         } = options
 
         if (Reflect.ownKeys(rest).length > 0) {
@@ -97,6 +107,7 @@ export default class Formatter {
         this.depth = depth
         this.limitDepth = limitDepth
         this.maxComplexity = pretty ? maxComplexity ?? 3 : Infinity
+        this.style = style
 
         this.seen = new WeakMap()
         this.current = null
@@ -107,6 +118,7 @@ export default class Formatter {
             depth: this.depth,
             indent: this.indent,
             maxComplexity: this.maxComplexity,
+            style: this.style,
         }).value
     }
 
@@ -116,7 +128,7 @@ export default class Formatter {
     format(value: unknown): void {
         // Special case null, since typeof null === 'object'
         if (value === null) {
-            return this.write('null')
+            return this.write({ style: 'null', value: 'null' })
         }
 
         // Detect cycles
@@ -143,7 +155,7 @@ export default class Formatter {
             }
 
             if (util.isProxy(value!)) {
-                this.write('proxy ')
+                this.write({ style: 'hint', value: 'proxy ' })
             }
         }
 
@@ -189,14 +201,14 @@ export default class Formatter {
         case 'function':    return formatters.formatFunction.call(value, this)
         case 'string':      return formatters.formatString.call(value, this)
         case 'symbol':      return formatters.formatSymbol.call(value, this)
-        case 'undefined':   return this.write('undefined')
+        case 'undefined':   return this.write({ style: 'undefined', value: 'undefined' })
 
         case 'number':
         case 'boolean':
-            return this.write(value.toString())
+            return this.write({ style: 'number', value: value.toString() })
 
         case 'bigint':
-            return this.write(value.toString(), 'n')
+            return this.write({ style: 'number', value: [value.toString(), 'n'] })
         }
     }
 
@@ -452,6 +464,9 @@ export class SubFormatter {
         this.write(this.close)
     }
 
+    write_item(cb: () => void): void
+    write_item(item: Fragment, ...args: Fragment[]): void
+
     /**
      * Write a single entry.
      *
@@ -462,18 +477,18 @@ export class SubFormatter {
      * When using sub-formatters you should generally avoid calling
      * {@link #format} and {@link write} outside of a callback to this function.
      */
-    write_item(cb: string | (() => void)): void {
+    write_item(cb?: (() => void) | Fragment, ...args: Fragment[]): void {
         if (this.has_elements) {
             this.write(',')
         }
         this.write({ break: 'soft', text: ' ', indent: this.formatter.depth })
+
         if (typeof cb === 'function') {
             cb()
-        } else if (typeof cb === 'string') {
-            this.write(cb)
-        } else {
-            throw new Error('SubFormatter#write_item accepts only functions and strings')
+        } else if (cb) {
+            this.write(cb, ...args)
         }
+
         this.has_elements = true
     }
 }

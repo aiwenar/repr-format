@@ -14,6 +14,7 @@ Migrated codebase to TypeScript.
 - Formatters for primitive wrapper objects: `Boolean`, `Number`, and `String`.
 - Formatter for `Error`s.
 - Include `Symbol.toStringTag` in object's name.
+- Interface for applying colour and styles.
 
 ### Fixes
 

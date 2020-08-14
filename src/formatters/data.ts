@@ -3,15 +3,17 @@ import util from '../util'
 import { represent } from '../common'
 
 export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
-    const name = util.objectName(this)!
+    fmt.write(util.objectName(this)!, ' [ ')
 
     if (this.byteLength === 0) {
-        fmt.write(name, ' [ empty ]')
+        fmt.write({ style: 'undefined', value: 'empty' })
     } else if (this.byteLength === 1) {
-        fmt.write(name, ' [ 1 byte ]')
+        fmt.write({ style: 'hint', value: '1 byte' })
     } else {
-        fmt.write(name, ' [ ', this.byteLength.toString(), ' bytes ]')
+        fmt.write({ style: 'hint', value: [this.byteLength.toString(), ' bytes'] })
     }
+
+    fmt.write(' ]')
 }
 util.extend(ArrayBuffer, represent, formatArrayBuffer)
 
@@ -22,13 +24,18 @@ export function formatDataView(this: DataView, fmt: Formatter) {
     fmt.write(
         name,
         ' [ ',
-        this.byteLength.toString(),
-        ' ',
-        byte_bytes,
-        ' from ',
-        this.buffer.byteLength.toString(),
-        ', starting at byte ',
-        this.byteOffset.toString(),
+        {
+            style: 'hint',
+            value: [
+                this.byteLength.toString(),
+                ' ',
+                byte_bytes,
+                ' from ',
+                this.buffer.byteLength.toString(),
+                ', starting at byte ',
+                this.byteOffset.toString(),
+            ],
+        },
         ' ]',
     )
 }

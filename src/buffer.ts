@@ -1,3 +1,5 @@
+import { Style, StyleProcessor } from './common'
+
 export type Fragment = Immediate | Deferred
 
 /**
@@ -8,7 +10,7 @@ export type Immediate = string | HardBreak | SoftBreak
 /**
  * Fragment which has not yet been formatted.
  */
-export type Deferred = Buffer | (() => Fragment | Fragment[])
+export type Deferred = Buffer | (() => Fragment | Fragment[]) | Styled
 
 /**
  * Always break here
@@ -41,6 +43,14 @@ export type SoftBreak = {
 }
 
 /**
+ * Fragment with styles applied
+ */
+export type Styled = {
+    style: Style,
+    value: Fragment | Fragment[],
+}
+
+/**
  * Formatting options
  */
 export type Options = {
@@ -59,6 +69,10 @@ export type Options = {
      * component buffers. Each buffer has complexity of at least one.
      */
     maxComplexity?: number
+    /**
+     * Style processor
+     */
+    style: StyleProcessor,
 }
 
 /**
@@ -106,7 +120,7 @@ export default class Buffer {
      * Flush this buffer
      */
     flush(options: Options): Result {
-        const { depth, indent, maxComplexity } = options
+        const { depth, indent, maxComplexity, style } = options
         const result: Result = {
             value: '',
             complexity: 0,
@@ -134,7 +148,14 @@ export default class Buffer {
                 nestedBuffers += 1
             } else if (typeof fragment === 'function') {
                 return processFragment(fragment())
-            } else if (typeof fragment === 'object' && fragment.break === 'hard') {
+            } else if (typeof fragment === 'string') {
+            } else if ('style' in fragment) {
+                const [before, after] = style(fragment.style)
+                partial.push(before)
+                processFragment(fragment.value)
+                partial.push(after)
+                return
+            } else if (fragment.break === 'hard') {
                 result.multiline = true
             }
 

@@ -19,10 +19,10 @@ export function formatReference(fmt: Formatter): Reference {
 
         ref.number = num
 
-        return '#' + num + ' = '
+        return [{ style: 'hint', value: '#' + num }, ' = ']
     }
 
-    const reference = (): Fragment => '#' + ref.number + '#'
+    const reference = (): Fragment => ({ style: 'hint', value: '#' + ref.number + '#' })
 
     const addRef = (): Fragment => {
         ref.count += 1

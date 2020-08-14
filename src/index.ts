@@ -1,6 +1,8 @@
 import Formatter, { Options } from './formatter'
 import { represent } from './common'
 
+export { Style } from './common'
+
 /**
  * Format a value.
  */
