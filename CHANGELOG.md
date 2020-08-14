@@ -12,6 +12,7 @@ Migrated codebase to TypeScript.
 - Show when formatted value includes multiple references to the same object.
 - Formatters for primitive wrapper objects: `Boolean`, `Number`, and `String`.
 - Formatter for `Error`s.
+- Include `Symbol.toStringTag` in object's name.
 
 ### Fixes
 

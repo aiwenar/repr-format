@@ -3,7 +3,7 @@ import util from '../util'
 import { represent } from '../common'
 
 export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
-    const name = Reflect.getPrototypeOf(this).constructor.name
+    const name = util.objectName(this)!
 
     if (this.byteLength === 0) {
         fmt.write(name, ' [ empty ]')
@@ -16,7 +16,7 @@ export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
 util.extend(ArrayBuffer, represent, formatArrayBuffer)
 
 export function formatDataView(this: DataView, fmt: Formatter) {
-    const name = Reflect.getPrototypeOf(this).constructor.name
+    const name = util.objectName(this)!
     const byte_bytes = this.byteLength === 1 ? 'byte' : 'bytes'
 
     fmt.write(

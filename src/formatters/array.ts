@@ -3,10 +3,7 @@ import util from '../util'
 import { represent } from '../common'
 
 export function formatArray(this: Array<unknown>, fmt: Formatter) {
-    const { constructor } = Reflect.getPrototypeOf(this)
-    const name = constructor === Array ? null : constructor.name
-
-    fmt.list(name, fmt => {
+    fmt.list(this, fmt => {
         const props = []
         const symprops = []
 
@@ -65,10 +62,7 @@ util.extend(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor, represen
 const HEX = '0123456789abcdef'
 
 export function formatByteArray(this: Uint8Array, fmt: Formatter) {
-    const { constructor } = Reflect.getPrototypeOf(this)
-    const name = constructor === Array ? 'Uint8Array' : constructor.name
-
-    fmt.write(name, ' "')
+    fmt.write(util.objectName(this)!, ' "')
 
     for (const byte of this) {
         switch (byte) {

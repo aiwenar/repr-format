@@ -270,7 +270,7 @@ export default class Formatter {
      *
      * Name { foo: "bar", buz: [1, 2, 3] }
      */
-    struct(name: string | null, callback: (fmt: Struct) => void) {
+    struct(name: string | null | object, callback: (fmt: Struct) => void) {
         this._subformatter(Struct, name, callback)
     }
 
@@ -294,7 +294,7 @@ export default class Formatter {
      *
      * Name [1, 2, 3]
      */
-    list(name: string | null, callback: (fmt: List) => void) {
+    list(name: string | null | object, callback: (fmt: List) => void) {
         this._subformatter(List, name, callback)
     }
 
@@ -317,7 +317,7 @@ export default class Formatter {
      *
      * Name { 1, 2, 3 }
      */
-    set(name: string | null, callback: (fmt: Set) => void) {
+    set(name: string | null | object, callback: (fmt: Set) => void) {
         this._subformatter(Set, name, callback)
     }
 
@@ -339,32 +339,28 @@ export default class Formatter {
      *
      * Name { "foo" => 1, "bar" => "baz" }
      */
-    map(name: string | null, callback: (fmt: Map) => void) {
+    map(name: string | null | object, callback: (fmt: Map) => void) {
         this._subformatter(Map, name, callback)
     }
 
     private _subformatter<F extends SubFormatter>(
-        formatter: { new(fmt: Formatter, name: string | null): F },
+        formatter: { new(fmt: Formatter, name: string | null | object): F },
         callback: (fmt: F) => void,
     ): void
     private _subformatter<F extends SubFormatter>(
-        formatter: { new(fmt: Formatter, name: string | null): F },
-        name: string | null,
+        formatter: { new(fmt: Formatter, name: string | null | object): F },
+        name: string | null | object,
         callback: (fmt: F) => void,
     ): void
 
     private _subformatter<F extends SubFormatter>(
-        Formatter: { new(fmt: Formatter, name: string | null): F },
-        name: string | null | ((fmt: F) => void),
+        Formatter: { new(fmt: Formatter, name: string | null | object): F },
+        name: string | null | object | ((fmt: F) => void),
         callback?: (fmt: F) => void,
     ): void {
         if (typeof name === 'function') {
-            callback = name
+            callback = name as ((fmt: F) => void)
             name = null
-        }
-
-        if (name && typeof name === 'object') {
-            name = Reflect.getPrototypeOf(name).constructor.name
         }
 
         const buffer = this.result
@@ -399,7 +395,11 @@ export class SubFormatter {
     close: string
     has_elements: boolean
 
-    constructor(formatter: Formatter, name: string | null) {
+    constructor(formatter: Formatter, name: string | null | object) {
+        if (name != null && typeof name === 'object') {
+            name = util.objectName(name)
+        }
+
         this.formatter = formatter
         this.name = name
 

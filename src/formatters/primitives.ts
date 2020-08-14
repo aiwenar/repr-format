@@ -29,8 +29,7 @@ export function formatRegExp(this: RegExp, fmt: Formatter) {
 util.extend(RegExp, represent, formatRegExp)
 
 export function formatNumberWrapper(this: Boolean | Number, fmt: Formatter) {
-    const name = Reflect.getPrototypeOf(this).constructor.name
-    fmt.write('[' + name + ': ' + this.valueOf() + ']')
+    fmt.write('[' + util.objectName(this)! + ': ' + this.valueOf() + ']')
 }
 util.extend(Boolean, represent, formatNumberWrapper)
 util.extend(Number, represent, formatNumberWrapper)
