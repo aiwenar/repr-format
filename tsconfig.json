@@ -11,4 +11,5 @@
         "strict": true,
         "target": "es2020",
     },
+    "exclude": ["dist", "extension"],
 }

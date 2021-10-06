@@ -1,10 +1,6 @@
 import fs from 'fs'
 import typescript from 'rollup-plugin-typescript2'
 
-const plugins = [
-    typescript(),
-]
-
 const rules = [
     {
         input: 'src/index.ts',
@@ -18,9 +14,16 @@ const rules = [
                 file: 'dist/index.cjs.js',
                 format: 'cjs',
                 sourcemap: true,
+                exports: 'auto',
             },
         ],
-        plugins,
+        plugins: [
+            typescript({
+                tsconfigOverride: {
+                    "exclude": ["dist", "extension", "src/extension"],
+                },
+            }),
+        ],
     },
 ]
 
@@ -32,7 +35,16 @@ for (const ext of fs.readdirSync('src/extension')) {
             format: 'cjs',
             sourcemap: true,
         },
-        plugins,
+        plugins: [
+            typescript({
+                tsconfigOverride: {
+                    "compilerOptions": {
+                        "rootDir": "src/extension",
+                    },
+                    "include": ["src/extension"]
+                },
+            }),
+        ],
         external: ['repr-format'],
     })
 }
