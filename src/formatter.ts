@@ -150,7 +150,7 @@ export default class Formatter {
         if (typeof value === 'object') {
             try {
                 proto = Reflect.getPrototypeOf(value!)
-            } catch (ex) {
+            } catch (ex: any) {
                 const value = [ex.name, ' when formatting']
 
                 if (ex.message.length > 0) {

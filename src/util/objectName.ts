@@ -18,6 +18,6 @@ export default function objectName<T extends object>(obj: T): string | null {
     if ((constructor === Object || constructor === Array) && tag == null) return null
 
     return tag == null
-        ? constructor.name
-        : constructor.name + ' [' + tag + ']'
+        ? constructor!!.name
+        : constructor!!.name + ' [' + tag + ']'
 }

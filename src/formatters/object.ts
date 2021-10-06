@@ -16,7 +16,7 @@ export function formatField(fmt: Struct, obj: object, key: PropertyKey) {
         if (Reflect.getOwnPropertyDescriptor(obj, key)!.enumerable) {
             fmt.field(key, obj[key as keyof object])
         }
-    } catch (ex) {
+    } catch (ex: any) {
         const value = [ex.name, ' when accessing field']
 
         if (ex.message.length > 0) {
