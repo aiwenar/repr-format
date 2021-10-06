@@ -10,16 +10,25 @@ declare global {
 }
 
 console.repr = function repr(...data: unknown[]): void {
-    console.log(data.map(item => {
+    const fmt = new format.Formatter({ pretty: true, style: applyStyle })
+
+    let first = true
+
+    for (const item of data) {
+        if (!first) {
+            fmt.write(' ')
+        }
+        first = false
+
         if (typeof item === 'string') {
-            return item
+            fmt.write(item)
+            continue
         }
 
-        return format(item, {
-            pretty: true,
-            style: applyStyle,
-        })
-    }).join(' '))
+        fmt.format(item)
+    }
+
+    console.log(fmt.toString())
 }
 
 const STYLES: Record<Style, string> = {
