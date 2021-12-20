@@ -21,5 +21,8 @@
     "build": "rollup -c",
     "prepack": "rollup -c",
     "prepare": "rollup -c"
+  },
+  "dependencies": {
+    "repr-format-node-util": "aiwenar/repr-format-node-util"
   }
 }

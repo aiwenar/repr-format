@@ -5,4 +5,10 @@ try {
     isProxy = require('util').types.isProxy
 } catch {}
 
-export default isProxy
+let inspectProxy = (o: unknown): object | undefined => undefined
+
+try {
+    inspectProxy = require('repr-format-node-util').inspectProxy
+} catch {}
+
+export { isProxy, inspectProxy }

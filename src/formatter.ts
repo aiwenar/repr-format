@@ -159,9 +159,22 @@ export default class Formatter {
 
                 return this.write({ style: 'hint', value })
             }
+        }
 
-            if (util.isProxy(value!)) {
-                this.write({ style: 'hint', value: 'proxy ' })
+        if (typeof value === 'object' && util.isProxy(value!)) {
+            this.write({ style: 'hint', value: 'proxy ' })
+
+            const proxiedObject = util.inspectProxy(value)
+            if (proxiedObject != null) {
+                let ref = this.seen.get(proxiedObject)
+
+                if (ref != null) {
+                    return this.write(ref.addRef())
+                } else {
+                    ref = formatters.formatReference(this)
+                    this.seen.set(proxiedObject, ref)
+                    this.write(ref.source)
+                }
             }
         }
 
