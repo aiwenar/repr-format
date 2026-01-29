@@ -214,7 +214,7 @@ export default class Formatter {
      * new Custom().format(86).toString() // => "even"
      * new Custom().format(3.14).toString() // => "not an integer"
      */
-    formatDefault(value: NonNullable<unknown>): void {
+    formatDefault(value: unknown): void {
         switch (typeof value) {
         case 'object':      return formatters.formatObject.call(value!, this)
         case 'function':    return formatters.formatFunction.call(value, this)
