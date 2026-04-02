@@ -1,0 +1,27 @@
+{
+  "name": "repr-format",
+  "license": "MIT",
+  "version": "0.4.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    },
+    "./extension/browser": {
+      "import": "./dist/extension/browser.mjs",
+      "types": "./dist/extension/browser.d.mts"
+    },
+    "./extension/node": {
+      "import": "./dist/extension/node.mjs",
+      "types": "./dist/extension/node.d.mts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "repr-format-node-util": "aiwenar/repr-format-node-util"
+  },
+  "packageManager": "yarn@4.12.0"
+}
