@@ -1,47 +1,47 @@
 import Formatter from '../formatter'
-import util from '../util'
+import { escape, extend, objectName } from '../util'
 import { represent } from '../common'
 
-export function formatDate(this: Date, fmt: Formatter) {
+export function formatDate(this: Date, fmt: Formatter): void {
     fmt.write({ style: 'date', value: 'Date(' + this.toISOString() + ')' })
 }
-util.extend(Date, represent, formatDate)
+extend(Date, represent, formatDate)
 
-export function formatSymbol(this: symbol, fmt: Formatter) {
+export function formatSymbol(this: symbol, fmt: Formatter): void {
     const key = Symbol.keyFor(this)
     const value = key != null
-        ? 'Symbol.for(' + util.escape(key) + ')'
+        ? 'Symbol.for(' + escape(key) + ')'
         : this.toString()
     fmt.write({ style: 'symbol', value })
 }
-util.extend(Symbol, represent, formatSymbol)
+extend(Symbol, represent, formatSymbol)
 
-export function formatString(this: string, fmt: Formatter) {
-    fmt.write({ style: 'string', value: ['"', util.escape(this, '"'), '"'] })
+export function formatString(this: string, fmt: Formatter): void {
+    fmt.write({ style: 'string', value: ['"', escape(this, '"'), '"'] })
 }
-util.extend(String, represent, formatString)
+extend(String, represent, formatString)
 
-export function formatRegExp(this: RegExp, fmt: Formatter) {
+export function formatRegExp(this: RegExp, fmt: Formatter): void {
     fmt.write({ style: 'regexp', value: ['/', this.source, '/', this.flags] })
 }
-util.extend(RegExp, represent, formatRegExp)
+extend(RegExp, represent, formatRegExp)
 
-export function formatNumberWrapper(this: Boolean | Number, fmt: Formatter) {
-    fmt.write({ style: 'number', value: '[' + util.objectName(this)! + ': ' + this.valueOf() + ']' })
+export function formatNumberWrapper(this: Boolean | Number, fmt: Formatter): void {
+    fmt.write({ style: 'number', value: '[' + objectName(this)! + ': ' + this.valueOf() + ']' })
 }
-util.extend(Boolean, represent, formatNumberWrapper)
-util.extend(Number, represent, formatNumberWrapper)
+extend(Boolean, represent, formatNumberWrapper)
+extend(Number, represent, formatNumberWrapper)
 
-export function formatStringWrapper(this: String, fmt: Formatter) {
-    fmt.write({ style: 'string', value: '[String: "' + util.escape(this.valueOf(), '"') + '"]' })
+export function formatStringWrapper(this: String, fmt: Formatter): void {
+    fmt.write({ style: 'string', value: '[String: "' + escape(this.valueOf(), '"') + '"]' })
 }
-util.extend(String, represent, formatStringWrapper)
+extend(String, represent, formatStringWrapper)
 
-export function formatError(this: Error, fmt: Formatter) {
+export function formatError(this: Error, fmt: Formatter): void {
     fmt.write({ style: 'hint', value: '[' + this.name })
     if (this.message.length > 0) {
         fmt.write({ style: 'hint', value: ': ' + this.message })
     }
     fmt.write({ style: 'hint', value: ']' })
 }
-util.extend(Error, represent, formatError)
+extend(Error, represent, formatError)

@@ -1,14 +1,13 @@
-let isProxy = <T extends object>(o: T): boolean => false
+export let isProxy: <T>(o: T) => boolean = (o) => false
+export let inspectProxy = <T>(o: T): T | undefined => undefined
 
-try {
-    // In node.js it's possible to detect that an object is a proxy.
-    isProxy = require('util').types.isProxy
-} catch {}
+await (async () => {
+    try {
+        // In node.js it's possible to detect that an object is a proxy.
+        isProxy = (await import('node:util')).types.isProxy
+    } catch { }
 
-let inspectProxy = (o: unknown): object | undefined => undefined
-
-try {
-    inspectProxy = require('repr-format-node-util').inspectProxy
-} catch {}
-
-export { isProxy, inspectProxy }
+    try {
+        inspectProxy = (await import('repr-format-node-util')).inspectProxy
+    } catch {}
+})()

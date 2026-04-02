@@ -1,4 +1,4 @@
-import format, { Style } from 'repr-format'
+import format, { Formatter, type Style } from '..'
 
 // Mark file as module, so that declare global {} is allowed.
 export {}
@@ -10,7 +10,7 @@ declare global {
 }
 
 console.repr = function repr(...data: unknown[]): void {
-    const fmt = new format.Formatter({ pretty: true, style: applyStyle })
+    const fmt = new Formatter({ pretty: true, style: applyStyle })
 
     let first = true
 

@@ -9,15 +9,14 @@
  * {@link Array} `null` is returned instead.
  */
 export default function objectName<T extends object>(obj: T): string | null {
-    const prototype = Reflect.getPrototypeOf(obj)
-    const constructor = prototype && prototype.constructor
+    const constructor = Reflect.getPrototypeOf(obj)?.constructor
     const tag = !Reflect.getOwnPropertyDescriptor(obj, Symbol.toStringTag)?.enumerable
         ? Reflect.get(obj, Symbol.toStringTag) as string
         : null
 
     if ((constructor === Object || constructor === Array) && tag == null) return null
 
-    return tag == null
+    return tag == null || tag == constructor!!.name
         ? constructor!!.name
         : constructor!!.name + ' [' + tag + ']'
 }

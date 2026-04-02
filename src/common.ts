@@ -6,7 +6,7 @@ export type ReprFunction = (fmt: Formatter) => void
  * If an object has a method with this symbol as it's name, and a signature
  * of {@link ReprFuction}, it will be used to represent that object.
  */
-export const represent = Symbol.for('@@represent')
+export const represent: unique symbol = Symbol.for('@@represent')
 
 /**
  * Name of a colour

@@ -1,12 +1,12 @@
-import Formatter, { Options } from './formatter'
-import { represent } from './common'
+import Formatter, { type Options } from './formatter'
 
-export { Style } from './common'
+export { type Style, represent } from './common'
+export { default as Formatter } from './formatter'
 
 /**
  * Format a value.
  */
-export default function format(value: unknown, formatterOrOptions?: Formatter | Options): string {
+function format(value: unknown, formatterOrOptions?: Formatter | Options): string {
     let options = {}
     let formatter = null
 
@@ -27,5 +27,4 @@ export default function format(value: unknown, formatterOrOptions?: Formatter | 
     return formatter.toString()
 }
 
-format.Formatter = Formatter
-format.represent = represent
+export default format

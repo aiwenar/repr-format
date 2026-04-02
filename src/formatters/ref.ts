@@ -1,5 +1,5 @@
 import Formatter from '../formatter'
-import { Fragment } from '../buffer'
+import { type Fragment } from '../buffer'
 
 const REF_NUMBER: WeakMap<Formatter, number> = new WeakMap()
 

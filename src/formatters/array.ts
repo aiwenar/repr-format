@@ -1,9 +1,9 @@
 import Formatter from '../formatter'
-import util from '../util'
+import { compareKeys, extend, objectName } from '../util'
 import { represent } from '../common'
 import { formatField } from './object'
 
-export function formatArray(this: Array<unknown>, fmt: Formatter) {
+export function formatArray(this: Array<unknown>, fmt: Formatter): void {
     fmt.list(this, fmt => {
         const props = []
         const symprops = []
@@ -48,7 +48,7 @@ export function formatArray(this: Array<unknown>, fmt: Formatter) {
         }
 
         // And finally properties
-        for (const prop of props.sort(util.compareKeys)) {
+        for (const prop of props.sort(compareKeys)) {
             formatField(fmt, this, prop)
         }
     })
@@ -59,12 +59,12 @@ interface TypedArrayConstructor {
 }
 interface TypedArray {}
 
-util.extend(Array, represent, formatArray)
-util.extend(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor, represent, formatArray)
+extend(Array, represent, formatArray)
+extend(Reflect.getPrototypeOf(Int8Array) as TypedArrayConstructor, represent, formatArray)
 
 const HEX = '0123456789abcdef'
 
-export function formatByteArray(this: Uint8Array, fmt: Formatter) {
+export function formatByteArray(this: Uint8Array, fmt: Formatter): void {
     let value = '"'
 
     for (const byte of this) {
@@ -88,6 +88,6 @@ export function formatByteArray(this: Uint8Array, fmt: Formatter) {
 
     value += '"'
 
-    fmt.write(util.objectName(this)!, ' ', { style: 'string', value })
+    fmt.write(objectName(this)!, ' ', { style: 'string', value })
 }
-util.extend(Uint8Array, represent, formatByteArray)
+extend(Uint8Array, represent, formatByteArray)

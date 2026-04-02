@@ -1,15 +1,6 @@
-import compareKeys from './compareKeys'
-import escape from './escape'
-import extend from './extend'
-import isIdentifier from './isIdentifier'
-import * as isProxy from './isProxy'
-import objectName from './objectName'
-
-export default {
-    compareKeys,
-    escape,
-    extend,
-    isIdentifier,
-    ...isProxy,
-    objectName,
-}
+export { default as compareKeys } from './compareKeys'
+export { default as escape } from './escape'
+export { default as extend } from './extend'
+export { default as isIdentifier } from './isIdentifier'
+export * from './isProxy'
+export { default as objectName } from './objectName'

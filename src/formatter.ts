@@ -1,7 +1,7 @@
-import Buffer, { Fragment } from './buffer'
-import util from './util'
+import Buffer, { type Fragment } from './buffer'
+import { inspectProxy, isIdentifier, isProxy, objectName } from './util'
 import * as formatters from './formatters'
-import { StyleProcessor, represent } from './common'
+import { type StyleProcessor, represent } from './common'
 
 export interface Options {
     /**
@@ -161,10 +161,10 @@ export default class Formatter {
             }
         }
 
-        if (typeof value === 'object' && util.isProxy(value!)) {
+        if (typeof value === 'object' && isProxy(value!)) {
             this.write({ style: 'hint', value: 'proxy ' })
 
-            const proxiedObject = util.inspectProxy(value)
+            const proxiedObject = inspectProxy(value)
             if (proxiedObject != null) {
                 let ref = this.seen.get(proxiedObject)
 
@@ -245,7 +245,7 @@ export default class Formatter {
      * @see #set
      * @see #map
      */
-    write(...data: Fragment[]) {
+    write(...data: Fragment[]): void {
         for (const item of data) {
             this._write(item)
         }
@@ -306,7 +306,7 @@ export default class Formatter {
      *
      * Name { foo: "bar", buz: [1, 2, 3] }
      */
-    struct(name: string | null | object, callback: (fmt: Struct) => void) {
+    struct(name: string | null | object, callback: (fmt: Struct) => void): void {
         this._subformatter(Struct, name, callback)
     }
 
@@ -330,7 +330,7 @@ export default class Formatter {
      *
      * Name [1, 2, 3]
      */
-    list(name: string | null | object, callback: (fmt: List) => void) {
+    list(name: string | null | object, callback: (fmt: List) => void): void {
         this._subformatter(List, name, callback)
     }
 
@@ -353,7 +353,7 @@ export default class Formatter {
      *
      * Name { 1, 2, 3 }
      */
-    set(name: string | null | object, callback: (fmt: Set) => void) {
+    set(name: string | null | object, callback: (fmt: Set) => void): void {
         this._subformatter(Set, name, callback)
     }
 
@@ -375,7 +375,7 @@ export default class Formatter {
      *
      * Name { "foo" => 1, "bar" => "baz" }
      */
-    map(name: string | null | object, callback: (fmt: Map) => void) {
+    map(name: string | null | object, callback: (fmt: Map) => void): void {
         this._subformatter(Map, name, callback)
     }
 
@@ -433,7 +433,7 @@ export class SubFormatter {
 
     constructor(formatter: Formatter, name: string | null | object) {
         if (name != null && typeof name === 'object') {
-            name = util.objectName(name)
+            name = objectName(name)
         }
 
         this.formatter = formatter
@@ -530,7 +530,7 @@ export class Struct extends SubFormatter {
         super.write_item(() => {
             if (typeof name === 'symbol' || typeof name === 'number') {
                 this.format(name)
-            } else if (util.isIdentifier(name)) {
+            } else if (isIdentifier(name)) {
                 this.write(name)
             } else {
                 this.format(name)

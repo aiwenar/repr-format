@@ -1,4 +1,4 @@
-import { Style, StyleProcessor } from './common'
+import { type Style, type StyleProcessor } from './common'
 
 export type Fragment = Immediate | Deferred
 

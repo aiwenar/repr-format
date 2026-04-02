@@ -1,4 +1,4 @@
-import format, { Style } from 'repr-format'
+import format, { type Style } from '..'
 
 // Mark file as module, so that declare global {} is allowed.
 export {}

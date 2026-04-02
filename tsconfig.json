@@ -19,9 +19,12 @@
 
         // Language and Environment
         "target": "es2024",
+        "isolatedDeclarations": true,
+        "verbatimModuleSyntax": true,
 
         // Output formatting
         "noErrorTruncation": true,
     },
+    "include": ["src"],
     "exclude": ["dist", "extension"],
 }

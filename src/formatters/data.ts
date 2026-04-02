@@ -1,9 +1,9 @@
 import Formatter from '../formatter'
-import util from '../util'
+import { extend, objectName } from '../util'
 import { represent } from '../common'
 
-export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
-    fmt.write(util.objectName(this)!, ' [ ')
+export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter): void {
+    fmt.write(objectName(this)!, ' [ ')
 
     if (this.byteLength === 0) {
         fmt.write({ style: 'undefined', value: 'empty' })
@@ -15,10 +15,10 @@ export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter) {
 
     fmt.write(' ]')
 }
-util.extend(ArrayBuffer, represent, formatArrayBuffer)
+extend(ArrayBuffer, represent, formatArrayBuffer)
 
-export function formatDataView(this: DataView, fmt: Formatter) {
-    const name = util.objectName(this)!
+export function formatDataView(this: DataView, fmt: Formatter): void {
+    const name = objectName(this)!
     const byte_bytes = this.byteLength === 1 ? 'byte' : 'bytes'
 
     fmt.write(
@@ -39,4 +39,4 @@ export function formatDataView(this: DataView, fmt: Formatter) {
         ' ]',
     )
 }
-util.extend(DataView, represent, formatDataView)
+extend(DataView, represent, formatDataView)

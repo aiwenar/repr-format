@@ -1,17 +1,17 @@
 import Formatter, { Struct } from '../formatter'
-import util from '../util'
+import { compareKeys, extend } from '../util'
 import { represent } from '../common'
 
-export function formatObject(this: object, fmt: Formatter) {
+export function formatObject(this: object, fmt: Formatter): void {
     fmt.struct(this, fmt => {
-        for (const key of Reflect.ownKeys(this).sort(util.compareKeys)) {
+        for (const key of Reflect.ownKeys(this).sort(compareKeys)) {
             formatField(fmt, this, key)
         }
     })
 }
-util.extend(Object, represent, formatObject)
+extend(Object, represent, formatObject)
 
-export function formatField(fmt: Struct, obj: object, key: PropertyKey) {
+export function formatField(fmt: Struct, obj: object, key: PropertyKey): void {
     try {
         if (Reflect.getOwnPropertyDescriptor(obj, key)!.enumerable) {
             fmt.field(key, obj[key as keyof object])
