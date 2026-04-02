@@ -2,7 +2,7 @@ import Formatter from '../formatter'
 import { extend, objectName } from '../util'
 import { represent } from '../common'
 
-export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter): void {
+export function formatArrayBuffer(this: ArrayBuffer | SharedArrayBuffer, fmt: Formatter): void {
     fmt.write(objectName(this)!, ' [ ')
 
     if (this.byteLength === 0) {
@@ -16,6 +16,7 @@ export function formatArrayBuffer(this: ArrayBuffer, fmt: Formatter): void {
     fmt.write(' ]')
 }
 extend(ArrayBuffer, represent, formatArrayBuffer)
+extend(SharedArrayBuffer, represent, formatArrayBuffer)
 
 export function formatDataView(this: DataView, fmt: Formatter): void {
     const name = objectName(this)!

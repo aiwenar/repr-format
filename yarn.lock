@@ -806,10 +806,10 @@ __metadata:
 
 repr-format-node-util@aiwenar/repr-format-node-util:
   version: 0.1.0
-  resolution: "repr-format-node-util@https://github.com/aiwenar/repr-format-node-util.git#commit=0b704d6fc489a1c9dfd0ed97cb0a21b9cbc3f1b5"
+  resolution: "repr-format-node-util@https://github.com/aiwenar/repr-format-node-util.git#commit=73dbe4fc1c9eb3b39f1815dcb589423e5fbcf5e7"
   dependencies:
     node-gyp: "npm:^12.2.0"
-  checksum: 10/f9ee807cf1225057585757fedde421ce1a6729422595c01ff43eb5cf649372775f7b68abd2fe0a3941db63306770cbdb356a8cfebb4ae9732bd27b03520da2ba
+  checksum: 10/d5a38a699d028534f75b8269c42aed8118dfa536a093a025112c4d5b6270dbb18609468e1926a1e15e700ec0b775435515ddab0c3880798b7e944bb6340808b4
   languageName: node
   linkType: hard
 

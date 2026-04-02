@@ -1,4 +1,5 @@
 export * from './array'
+export * from './async'
 export * from './data'
 export * from './function'
 export * from './map'

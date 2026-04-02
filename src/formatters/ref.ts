@@ -1,5 +1,7 @@
 import Formatter from '../formatter'
 import { type Fragment } from '../buffer'
+import { extend } from '../util'
+import { represent } from '../common'
 
 const REF_NUMBER: WeakMap<Formatter, number> = new WeakMap()
 
@@ -31,3 +33,14 @@ export function formatReference(fmt: Formatter): Reference {
 
     return { source, addRef }
 }
+
+export function formatWeakRef(this: WeakRef<object>, fmt: Formatter): void {
+    const target = this.deref()
+    if (target != null) {
+        fmt.write({ style: 'hint', value: 'weak ' })
+        fmt.format(target)
+    } else {
+        fmt.write({ style: 'hint', value: 'weak <reclaimed>' })
+    }
+}
+extend(WeakRef, represent, formatWeakRef)
